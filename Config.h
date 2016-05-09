@@ -20,7 +20,7 @@
 
 
 #define     IS_TRAIN			false				//true训练，false演示
-#define     Evaluation          true
+#define     Evaluation          true                 //evaluation
 #define		TRAIN_MOVE			false               //指训练的时候是否要对应实际的小车移动
 
 #define		STATE_STOP			0
