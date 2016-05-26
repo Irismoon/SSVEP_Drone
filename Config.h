@@ -10,7 +10,7 @@
 #define		FRE_SEGMENT			int(Fs*0.9)			//每个trial的时长
 
 /* */
-#define		DIS_MODE			2					//1、显示视频;3、黑屏训练，这种情况只要直接画flash就好了，屏幕自动被填充为黑色
+#define		DIS_MODE			1					//1、显示视频;3、黑屏训练，这种情况只要直接画flash就好了，屏幕自动被填充为黑色
 #define		WIN_WIDE			640			//窗口宽度
 #define		WIN_HEIGHT			480 				//窗口高度
 
@@ -19,18 +19,27 @@
 //#define		WIN_HEIGHT			1024				//窗口高度
 
 
-#define     IS_TRAIN			false				//true训练，false演示
-#define     Evaluation          true                 //evaluation
+//#define     IS_TRAIN			false				//true训练，false演示
+#define     Evaluation          false                 //evaluation
 #define		TRAIN_MOVE			false               //指训练的时候是否要对应实际的小车移动
 
 #define		STATE_STOP			0
 #define		STATE_PLAY			1
 #define		STATE_REST			2
 #define		STATE_END			3
-#define		DEBUG				1 
+#define		DEBUG				0 
 
 #define KEYMODE false
+
+//起飞设置
 bool TAKEOFF = false;
+#define     TAKEVAR       0.01
+#define     TAKE_THLD     100//连续满足条件十次才起飞
+
+//降落设置
+bool LAND = false;
+#define     LANDVAR       0.003
+#define     LAND_THLD     100
 
 #define		VALUE_POSITIVE		20
 #define		VALUE_NEGITIVE		10
@@ -41,7 +50,7 @@ bool TAKEOFF = false;
 
 
 //const int ch[8]={9,45,53,57,58,59,60,61};
-const double freq[4]=			{12.5,9.37,8.33,6.8182};//刺激频率，显示器刷新频率是60HZ，60/8，/7,/6，/5
+const double freq[4]=			{12.5,9.37,8.33,6.8182};//刺激频率，显示器刷新频率是75HZ，75/6，/8,/9，/11
 //const double freq[3]=			{37.5,25,18.75};
 
 //const double period[3]=			{80,120,200};

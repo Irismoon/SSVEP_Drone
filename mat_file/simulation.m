@@ -1,5 +1,12 @@
 head;
-%playing;
+mark = zeros(1,4);
+threshold = 30;
+negative = 10;
+positive = 20;
+minus = 10;
+serial = [];
+playing;
+serial_tri = [];
 %load('data.mat');
 % for k=1:3
 %     for i=1:30000
@@ -9,15 +16,17 @@ head;
 % end
 
 %data_src=load('..\\data-2010.07.11_23.20\\data_cnt-2010.07.11_23.20.txt');
-data_src=load('data_cnt-2016.04.29_17.40.txt');
+data_src=load('data_cnt-2016.05.23_15.17.txt');
+%data_src = data_src.data;
 for i=1:DATA_LENGTH
     x=data_src(i,:);
     data_add;
+    test;
 end
 N=length(trigger);
-[C,err,P,logp,coeff] = classify(fea_train(1:N/2,:),fea_train(1+N/2:N,:),trigger(1+N/2:N));%交叉验证
+[C,err,P,logp,coeff] = classify(fea_tran(1:N/2,:),fea_tran(1+N/2:N,:),trigger(1+N/2:N));%交叉验证
 disp(sum((C-trigger(1:N/2))==0)/N*2*100);
-% r=zeros(N,4);
+r=zeros(N,4);
 % for i=1:N/2
 %     r(i,1)=r(i,1)+(coeff(1,2).linear'*fea_train(N/2+i,:)'+coeff(1,2).const>0);
 %     r(i,1)=r(i,1)+(coeff(1,3).linear'*fea_train(N/2+i,:)'+coeff(1,3).const>0);
@@ -35,7 +44,7 @@ disp(sum((C-trigger(1:N/2))==0)/N*2*100);
 %     [b,r(i,6)]=max(r(i,1:4));
 % end
 % % 
-% figure(1)
+% figure()
 % hold on
 % for i=1:length(fea_train)
 %     if trigger(i)==0
@@ -50,12 +59,12 @@ disp(sum((C-trigger(1:N/2))==0)/N*2*100);
 %     if(trigger(i)==3)
 %         sty = 'y*';
 %     end
-%     plot3(coeff(1,2).linear'*fea_train(i,:)'+coeff(1,2).const,...
-%         coeff(1,3).linear'*fea_train(i,:)'+coeff(1,3).const,...
-%         coeff(1,4).linear'*fea_train(i,:)'+coeff(1,4).const,...
-%         coeff(2,3).linear'*fea_train(i,:)'+coeff(2,3).const,...
-%         coeff(2,4).linear'*fea_train(i,:)'+coeff(2,4).const,...
-%         coeff(3,4).linear'*fea_train(i,:)'+coeff(3,4).const,sty);
+%     plot3(coeff(1,2).linear'*fea_tran(i,:)'+coeff(1,2).const,...
+%         coeff(1,3).linear'*fea_tran(i,:)'+coeff(1,3).const,...
+%         coeff(1,4).linear'*fea_tran(i,:)'+coeff(1,4).const,...
+%         coeff(2,3).linear'*fea_tran(i,:)'+coeff(2,3).const,...
+%         coeff(2,4).linear'*fea_tran(i,:)'+coeff(2,4).const,...
+%         coeff(3,4).linear'*fea_tran(i,:)'+coeff(3,4).const,sty);
 % end
 % 
 % figure(2)

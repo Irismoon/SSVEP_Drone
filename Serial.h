@@ -1,6 +1,5 @@
 #pragma once
 #include "Head.h"
-#define SPEED 80
 class CSerial
 {
 public:
@@ -8,12 +7,12 @@ public:
 	HANDLE	hCom;
 	DWORD	dw;
 	bool	is_serial;	 
-	int		serial_state;
-	char    p[7][1];	//   only for R2 car
+	char    send_buf[50];
 	
 	CSerial()
 	{
 		is_serial=true;
+		memset(send_buf, 0, sizeof(send_buf));
 		hCom = ::CreateFile(COM_PORT,
 			GENERIC_READ | GENERIC_WRITE,
 			0,
@@ -40,86 +39,19 @@ public:
 		}
 		//读写串口前，先清空缓冲区
 		if( is_serial&&!::PurgeComm( hCom, PURGE_RXCLEAR ) )is_serial=false;
-
-		// only for R2 car
-		p[0][0] = '1';
-		p[1][0] = '2';
-		p[2][0] = '3';
-		p[3][0] = '4';
-		p[4][0] = '5';
-		p[5][0] = '6';
-		p[6][0] = '7';
-
-		serial_state=5;//初始化为5，只是为了区别于0，1，2，3，飞控里5为遥控器手动控制
 	}
 	~CSerial()
 	{
 		if(is_serial)
 		{
-			SentSerial(5);
+			SentSerial(0,0.0000);
 			::CloseHandle(hCom);//关闭串口
 		}
 	}
-	bool CheckSerial()
-	{
 
-	}
-
-	void SentSerial(int num)
+	void SentSerial(int num,double velocity)
 	{
-		serial_state=num;//num定义串口状态
-		if(is_serial)
-		{
-			//::WriteFile(hCom,s[num],11,&dw,NULL);
-			//char buff[1];
-			int k=1;       // each command repeat for k times
-			switch(num)
-			{
-			case 0://前
-				for(int i=0;i<k;i++)
-				{
-					::WriteFile(hCom,p[2],1,&dw,NULL);
-				}
-				break;
-			case 1://右
-				for(int i=0;i<k;i++)
-				{
-					::WriteFile(hCom,p[0],1,&dw,NULL);
-				}
-				break;
-			case 2://左
-				for(int i=0;i<k;i++)
-				{
-					::WriteFile(hCom,p[1],1,&dw,NULL);
-				}
-				break;
-			case 3://后
-				for(int i=0;i<k;i++)
-				{
-					::WriteFile(hCom,p[3],1,&dw,NULL);
-				}
-				break;
-			case 5://紧急手动控制
-				for (int i = 0; i<k; i++)
-				{
-					::WriteFile(hCom, p[4], 1, &dw, NULL);
-				}
-				break;
-			case 6://起飞
-				for (int i = 0; i<k; i++)
-				{
-					::WriteFile(hCom, p[5], 1, &dw, NULL);
-				}
-				break;
-			case 7://降落
-				for (int i = 0; i<k; i++)
-				{
-					::WriteFile(hCom, p[6], 1, &dw, NULL);
-				}
-				break;
-			}
-			//buff[0]=char(num);
-			//::WriteFile(hCom,buff,1,&dw,NULL);
-		}
+		sprintf(send_buf, "M%d%.2f\n", num, velocity);//velocity的小数点后两位存入，不用把四位全存入，这样可以使ARDRONE飞得更光滑稳定
+		WriteFile(hCom, send_buf, 5, &dw, NULL);
 	}
 };

@@ -15,7 +15,7 @@ bool	keys[256];											// 保存键盘按键的数组
 bool	active=true;										// 窗口的活动标志，缺省为TRUE
 
 
-class CGL : public CSerial,CVideo
+class CGL : public CVideo
 {
 public:
 
@@ -58,7 +58,6 @@ public:
 
 	~CGL()
 	{
-		SentSerial(5);
 		if(DEBUG)outfile.close();
 		KillGLWindow();
 	}
@@ -69,44 +68,6 @@ public:
 		t=((double)t2.QuadPart-(double)t1.QuadPart)*1000/((double)feq.QuadPart);
 		return t;//返回双精度的时间
 	}
-
-	/*bool collision()
-	{
-		float s[3][3]={3,0,0.5,  2,0.5,2,  0.5,2,3};
-		float offset=0.1;
-		float x=abs(xpos);
-		float y=abs(zpos);
-		for(int i=0;i<3;i++)
-		{
-			if((x>=(s[i][1]-offset)&&x<(s[i][2]+offset))&&y>(s[i][0]-offset))
-				return true;
-			if((y>=(s[i][1]-offset)&&y<(s[i][2]+offset))&&x>(s[i][0]-offset))
-				return true;
-		}
-		return false;
-	}
-	void ball_position()
-	{
-		bool index=false;
-		while(!index)
-		{
-			index=true;
-			ball_xpos=rand()%6-3;
-			ball_zpos=rand()%6-3;
-			float s[3][3]={3,0,0.5,  2,0.5,2,  0.5,2,3};
-			float offset=0.1;
-			float x=abs(ball_xpos);
-			float y=abs(ball_zpos);
-			for(int i=0;i<3;i++)
-			{
-				if((x>=(s[i][1]-offset)&&x<(s[i][2]+offset))&&y>(s[i][0]-offset))
-					index=false;
-				if((y>=(s[i][1]-offset)&&y<(s[i][2]+offset))&&x>(s[i][0]-offset))
-					index=false;
-			}
-		}//保证系统产生的随机数，ball_xpos,ball_zpos满足上述任意不等式才退出循环。
-	}*/
-
 
 	AUX_RGBImageRec *LoadBMP(char *Filename)				// Loads A Bitmap Image
 	{
@@ -475,176 +436,28 @@ public:
 				return false;								// 如果窗口未能创建，程序退出
 			}
 		}
-		//以下是键盘操控
-		if (KEYMODE)
-		{
-			if (keys[VK_UP])
-			{
-				xpos -= (float)sin(yrot*PI_OVER) * 0.05f;
-				zpos -= (float)cos(yrot*PI_OVER) * 0.05f;
-				/*if(collision())
-				{
-				xpos += (float)sin(yrot*PI_OVER) * 0.05f;
-				zpos += (float)cos(yrot*PI_OVER) * 0.05f;
-				}*/
-				SentSerial(0);
-			}
-
-			if (keys[VK_DOWN])
-			{
-				xpos += (float)sin(yrot*PI_OVER) * 0.05f;
-				zpos += (float)cos(yrot*PI_OVER) * 0.05f;
-				/*if(collision())
-				{
-				xpos -= (float)sin(yrot*PI_OVER) * 0.05f;
-				zpos -= (float)cos(yrot*PI_OVER) * 0.05f;
-				}*/
-				SentSerial(3);
-			}
-
-			if (keys[VK_RIGHT])
-			{
-				yrot -= 0.5f;
-				SentSerial(1);
-			}
-
-			if (keys[VK_LEFT])
-			{
-				yrot += 0.5f;
-				SentSerial(2);
-			}
-
-			if (keys[VK_HOME])
-			{
-				SentSerial(5);
-			}
-		}
-
-		//if(svep.trigger[svep.data_index%DATA_LENGTH]==0)
-		//{
-		//	SentSerial(0);
-		//}
-	
-		//if(svep.trigger[svep.data_index%DATA_LENGTH]==1)
-		//{
-		//	SentSerial(1);
-		//}
-
-		//if(svep.trigger[svep.data_index%DATA_LENGTH]==2)
-		//{
-		//	SentSerial(2);
-	//	}
-		//if (svep.trigger[svep.data_index%DATA_LENGTH] == 3)
-		//{
-		//	SentSerial(3);
-		//}
-
-		//以下是SSVEP控制
-		if (Evaluation) {
-			if (!TAKEOFF && (svep.mark[0] >= VALUE_THRESHOLD || svep.mark[1] >= VALUE_THRESHOLD || svep.mark[2] >= VALUE_THRESHOLD || svep.mark[3] >= VALUE_THRESHOLD)) {
-				SentSerial(6);//起飞
-				QueryPerformanceCounter(&svep.tend);
-				svep.evafile << '6' << '\t' << ((double)svep.tend.QuadPart) * 1000 / (double)svep.fequency.QuadPart << '\t';
-				TAKEOFF = true;
-			}
-			else {
-				if (svep.mark[0] >= VALUE_THRESHOLD)//阈值策略，同一值连续出现三次及以上才发送指令
-				{
-					svep.mark[0] -= VALUE_MINUS;
-					QueryPerformanceCounter(&svep.tend);
-					svep.evafile << '0' << '\t' << ((double)svep.tend.QuadPart) * 1000 / (double)svep.fequency.QuadPart << '\t';
-					SentSerial(0);
-				}//向上
-				else if (svep.mark[1] >= VALUE_THRESHOLD)
-				{
-					svep.mark[1] -= VALUE_MINUS;
-					QueryPerformanceCounter(&svep.tend);
-					svep.evafile << '1' << '\t' << ((double)svep.tend.QuadPart) * 1000 / (double)svep.fequency.QuadPart << '\t';
-					SentSerial(1);
-				}//向右
-				else if (svep.mark[2] >= VALUE_THRESHOLD)
-				{
-					svep.mark[2] -= VALUE_MINUS;
-					QueryPerformanceCounter(&svep.tend);
-					svep.evafile << '2' << '\t' << ((double)svep.tend.QuadPart) * 1000 / (double)svep.fequency.QuadPart << '\t';
-					SentSerial(2);
-				}//向左
-				else if (svep.mark[3] >= VALUE_THRESHOLD)
-				{
-					svep.mark[3] -= VALUE_MINUS;
-					QueryPerformanceCounter(&svep.tend);
-					svep.evafile << '3' << '\t' << ((double)svep.tend.QuadPart) * 1000 / (double)svep.fequency.QuadPart << '\t';
-					SentSerial(3);
-				}//向后
-				 /*else
-				 {
-				 SentSerial(5);
-				 }*///手动控制
-			}
-		}
-		if (!Evaluation) {
-			if (!TAKEOFF && (svep.mark[0] >= VALUE_THRESHOLD || svep.mark[1] >= VALUE_THRESHOLD || svep.mark[2] >= VALUE_THRESHOLD || svep.mark[3] >= VALUE_THRESHOLD)) {
-				SentSerial(6);//起飞
-				TAKEOFF = true;
-			}
-			else {
-				if (svep.mark[0] >= VALUE_THRESHOLD)//阈值策略，同一值连续出现三次及以上才发送指令
-				{
-					svep.mark[0] -= VALUE_MINUS;
-					SentSerial(0);
-				}//向上
-				else if (svep.mark[1] >= VALUE_THRESHOLD)
-				{
-					svep.mark[1] -= VALUE_MINUS;
-					SentSerial(1);
-				}//向右
-				else if (svep.mark[2] >= VALUE_THRESHOLD)
-				{
-					svep.mark[2] -= VALUE_MINUS;
-					SentSerial(2);
-				}//向左
-				else if (svep.mark[3] >= VALUE_THRESHOLD)
-				{
-					svep.mark[3] -= VALUE_MINUS;
-					SentSerial(3);
-				}//向后
-				 /*else
-				 {
-				 SentSerial(5);
-				 }*///手动控制
-			}
-		}
-		
-        //按下HOME键时发5
-		//根据解算数据发送串口指令控制小车
 			
 		//根据串口指令调整画图
-		switch(serial_state)
+		switch(svep.serialnum)
 		{
-		case 6:
-			break;
-		case 5:
-			break;//画面不动
-		case 3:
-			xpos += (float)sin(yrot*PI_OVER) * 0.01f;
-			zpos += (float)cos(yrot*PI_OVER) * 0.01f;
+		case 9:
 			break;
 		case 0:
+			break;//画面不动
+		case 2:
+			xpos += (float)sin(yrot*PI_OVER) * 0.01f;//svep.velocity
+			zpos += (float)cos(yrot*PI_OVER) * 0.01f;
+			break;//后
+		case 1:
 			xpos -= (float)sin(yrot*PI_OVER) * 0.01f;
 			zpos -= (float)cos(yrot*PI_OVER) * 0.01f;
-			//当旋转坐标系后在当前坐标系下前进后退平移时，要通过对原坐标系即屏幕中心坐标系进行x和z两个方向上的平移来完成
-			/*if(collision())
-			{				
-				xpos += (float)sin(yrot*PI_OVER) * 0.01f;
-				zpos += (float)cos(yrot*PI_OVER) * 0.01f;
-			}*/
-			break;
-		case 1:			
+			break;//前
+		case 4:			
 			yrot -= 0.1f;
-			break;
-		case 2:			
+			break;//右
+		case 3:			
 			yrot += 0.1f;
-			break;
+			break;//左
 		}
 
 		if(keys[VK_SPACE])
@@ -656,11 +469,11 @@ public:
 				svep.state=STATE_PLAY;
 				break;
 			case STATE_REST:
-				if(!IS_TRAIN)
+				if(!Evaluation)
 					svep.state=STATE_PLAY;;
 				break;
 			case STATE_PLAY:
-				if(!IS_TRAIN)
+				if(!Evaluation)
 					svep.state=STATE_REST;;
 				break;
 			}
@@ -675,11 +488,11 @@ public:
 			DrawVideo();
 		if(DIS_MODE==2)
 			DrawVirtural();
-		if (svep.state == STATE_PLAY&&IS_TRAIN)
+		/*if (svep.state == STATE_PLAY&&IS_TRAIN)
 		{
 			DrawTrainFlash();
-		}
-		if (svep.state == STATE_PLAY&&!IS_TRAIN)
+		}*/
+		if (svep.state == STATE_PLAY/*&&!IS_TRAIN*/)
 			DrawFlash();
 
 		//调试用
@@ -740,8 +553,8 @@ public:
 		glColor3d(c[1][index],c[1][index],c[1][index]);
 		if(DEBUG)outfile<<c[1][index]<<'\t';
 		glBegin(GL_QUADS);
-		glVertex3d(1.5*w2,w2/2,h);
-		glVertex3d(1.5*w2,-w2/2,h);
+		glVertex3d(1.5*w1,w2/2,h);
+		glVertex3d(1.5*w1,-w2/2,h);
 		glVertex3d(2*w1,-w2/2,h);
 		glVertex3d(2*w1,w2/2,h);
 		glEnd();//右下角的正方形
@@ -750,8 +563,8 @@ public:
 		glColor3d(c[2][index],c[2][index],c[2][index]);
 		if(DEBUG)outfile<<c[2][index]<<'\t';
 		glBegin(GL_QUADS);
-		glVertex3d(-1.5*w2,w2/2,h);
-		glVertex3d(-1.5*w2,-w2/2,h);
+		glVertex3d(-1.5*w1,w2/2,h);
+		glVertex3d(-1.5*w1,-w2/2,h);
 		glVertex3d(-2*w1,-w2/2,h);
 		glVertex3d(-2*w1,w2/2,h);//左下角的正方形
 		glEnd();
@@ -782,7 +595,7 @@ public:
 		bool flash_temp = true;
 		switch (svep.trigger[svep.data_index%DATA_LENGTH])
 		{
-		case 0://向前
+		case 1://向前
 			index = int(t * RefreshHz / 1000) % int(RefreshHz * period[0] / 1000);//画第一个频率对应的正方形
 			//t是当前已经过去了多长时间，除以各个频率对应的周期，就是各个频率对应的索引
 			glColor3d(c[0][index], c[0][index], c[0][index]);	//red,green ,blue
@@ -794,7 +607,7 @@ public:
 			glVertex3d(-w1 / 2, w2, h);
 			glEnd();//逆时针画的，最上面的长方形
 			break;
-		case 1://向右
+		case 4://向右
 			index = int(t * RefreshHz / 1000) % int(RefreshHz * period[1] / 1000);//第二个频率对应的正方形
 			glColor3d(c[1][index], c[1][index], c[1][index]);
 			if (DEBUG)outfile << c[1][index] << '\t';
@@ -805,7 +618,7 @@ public:
 			glVertex3d(1.5 * w2, w2 / 2, h);
 			glEnd();//右下角的正方形
 			break;
-		case 2://向左
+		case 3://向左
 			index = int(t * RefreshHz / 1000) % int(RefreshHz * period[2] / 1000);//第三个频率对应的正方形
 			glColor3d(c[2][index], c[2][index], c[2][index]);
 			if (DEBUG)outfile << c[2][index] << '\t';
@@ -816,7 +629,7 @@ public:
 			glVertex3d(-2 * w1, w2 / 2, h);//左下角的正方形
 			glEnd();
 			break;
-		case 3://向后
+		case 2://向后
 			index = int(t * RefreshHz / 1000) % int(RefreshHz * period[3] / 1000);//第四个频率对应的正方形
 			glColor3d(c[3][index], c[3][index], c[3][index]);
 			if (DEBUG)outfile << c[3][index] << '\n';
@@ -895,73 +708,7 @@ public:
 		glTexCoord2f(0.0f, 1.0f); glVertex3f(x + Width, y, z);
 		glEnd();
 		glDisable(GL_TEXTURE_2D);
-		/*if(svep.state==STATE_PLAY)
-		{
-			glLoadIdentity();
-			glRotatef(360.0f - yrot,0,1.0f,0);
-			glTranslatef(xtrans+ball_xpos, ytrans+0.2, ztrans+ball_zpos);
-			glRotatef(ball_xrot++, 1.0f, 0.0f, 0.0f);					// Rotate On The X Axis
-			glRotatef(ball_yrot++, 0.0f, 1.0f, 0.0f);					// Rotate On The Y Axis
-
-			glColor3f(1.0f, 1.0f, 1.0f);								// Set Color To White
-			glBindTexture(GL_TEXTURE_2D, BallTexture[0]);					// Select Texture 2 (1)
-			gluSphere(quadratic, 0.1f, 32, 16);							// Draw First ，指针，半径，纬线细分面，经线细分面（数字越大越平滑，相应的速度越慢）
-		}*/
 	}
-
-	/*void DrawBall()
-	{
-		glLoadIdentity();
-		glRotatef(0,0,1.0f,0);
-		switch(svep.trigger[svep.data_index%DATA_LENGTH])//如果是训练模式下画球，球的位置应该是与trigger一致,trigger是随机抽取的
-		{
-		case 0:
-			glTranslatef(0,-0.05, -1.8);//向前
-			break;
-		case 1:
-			glTranslatef(0.3,-0.05, -1);//向右
-			break;
-		case 2:
-			glTranslatef(-0.3,-0.05, -1);//向左
-			break;
-		case 3:
-			glTranslatef(0,-0.05, -0.5);//向后
-			break;
-		}
-		glRotatef(ball_xrot++, 1.0f, 0.0f, 0.0f);					// Rotate On The X Axis
-		glRotatef(ball_yrot++, 0.0f, 1.0f, 0.0f);					// Rotate On The Y Axis
-
-		glColor3f(1.0f, 1.0f, 1.0f);								// Set Color To White
-		glBindTexture(GL_TEXTURE_2D, BallTexture[0]);					// Select Texture 2 (1)
-		gluSphere(quadratic, 0.1f, 32, 16);							// Draw First Sphere
-	}*/
-
-	/*void DrawResult()
-	{
-		glLoadIdentity();
-		glRotatef(0,0,1.0f,0);
-		switch(svep.trigger[0])
-		{
-		case 0:
-			glTranslatef(0,-0.05, -1.8);
-			break;
-		case 1:
-			glTranslatef(0.3,-0.05, -1);
-			break;
-		case 2:
-			glTranslatef(-0.3,-0.05, -1);
-			break;
-		case 3:
-			//glTranslatef(0,-0.05, -0.5);
-			break;
-		}
-		glRotatef(ball_xrot++, 1.0f, 0.0f, 0.0f);					// Rotate On The X Axis
-		glRotatef(ball_yrot++, 0.0f, 1.0f, 0.0f);					// Rotate On The Y Axis
-
-		glColor3f(1.0f, 1.0f, 1.0f);								// Set Color To White
-		glBindTexture(GL_TEXTURE_2D, BallTexture[0]);					// Select Texture 2 (1)
-		gluSphere(quadratic, 0.1f, 32, 16);							// Draw First Sphere
-	}*/
 };
 
 static DWORD WINAPI PlaySoundEntry(PVOID arg)

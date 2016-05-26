@@ -66,11 +66,7 @@ int WINAPI WinMain(	HINSTANCE	hInstance,			// Instance
 					HINSTANCE	hPrevInstance,		// Previous Instance
 					LPSTR		lpCmdLine,			// Command Line Parameters
 					int			nCmdShow)			// Window Show State
-{//winAPI是C++程序调用windows系统资源的接口，包括几千个可调用的函数
-//是windows提供给应用程序与操作系统的接口
-//下面是操作系统核心，上面是应用程序
-//提供基础服务，图形及设备接口，可视化GUI，通用对话框链接库，通用空间链接库，windows外壳，网络服务
-//如今的集成开发环境已经是基于winAPI的封装了，通常的小程序我们与语言对应的库或类打交道，语言本身与winAPI打交道
+{
 	vr.client.Connect();	                        //先与电极帽连接
 	MSG		msg;									// Windows Message Structure
 	BOOL	done=FALSE;								// Bool Variable To Exit Lopo
