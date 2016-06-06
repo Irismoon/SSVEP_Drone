@@ -1,11 +1,10 @@
-tic;head;
+tic;head_for_offline_performance;
 mark = zeros(1,4);
 threshold = 30;
 negative = 10;
 positive = 20;
 minus = 10;
 IS_TRAIN=0;
-R = zeros(1280,4);
 %load('data.mat');
 % for k=1:3
 %     for i=1:30000
@@ -17,9 +16,9 @@ R = zeros(1280,4);
 %data_src=load('..\\data-2010.07.11_23.20\\data_cnt-2010.07.11_23.20.txt');
 data_src=load('data_cnt-2016.05.23_15.17.txt');
 %data_src = data_src.data;
-for i=1:DATA_LENGTH
+for i=1:20479%DATA_LENGTH
     x=data_src(i,:);
-    data_add;
+    data_add_for_offline_performance;
     test;
 end
 toc;

@@ -1,4 +1,4 @@
-tic;head;
+tic;head_for_offline_performance;
 mark = zeros(1,4);
 threshold = 30;
 negative = 10;
@@ -15,17 +15,17 @@ R = zeros(1280,4);
 % end
 
 %data_src=load('..\\data-2010.07.11_23.20\\data_cnt-2010.07.11_23.20.txt');
-data_src=load('data_cnt-2016.05.23_16.40.txt');
+data_src=load('data_cnt-2016.05.13_19.32.txt');
 %data_src = data_src.data;
 for i=1:DATA_LENGTH
     x=data_src(i,:);
-    data_add;
-    test;
+    data_add_for_offline_performance;
+%    test;
 end
 toc;
-% N=length(trigger);
+ N=length(trigger);
 % [C,err,P,logp,coeff] = classify(fea_tran(1:N/2,:),fea_tran(1+N/2:N,:),trigger(1+N/2:N));%½»²æÑéÖ¤
-% disp(sum((C-trigger(1:N/2))==0)/N*2*100);
+ disp(sum((Signal-trigger(1:N))==0)/N*100);
 % r=zeros(N,4);
 % for i=1:N/2
 %     r(i,1)=r(i,1)+(coeff(1,2).linear'*fea_train(N/2+i,:)'+coeff(1,2).const>0);

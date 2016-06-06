@@ -40,7 +40,7 @@ if mod(data_index,slide)==0%每slide个数据处理一次
 %                 Wx = fliplr(Wx);
                 rou(i) = r(1);
             end
-            %R(index,:) = rou;
+            R(index,:) = rou;
             [velocity,signal] = max(rou);
             variance = var(rou);
 %            signal = signal-1;

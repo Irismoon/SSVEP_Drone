@@ -514,14 +514,16 @@ public:
 		glLoadIdentity();									// Reset The View
 		glTranslatef(0.0f,0.0f,-5.0f);//平移
 		glColor3d(1,1,1);	//当前点着色白色
+		glEnable(GL_TEXTURE_2D);
 		glBindTexture(GL_TEXTURE_2D, VideoTexture[0]);
 		
 		glBegin(GL_QUADS);//画正方形
-		glTexCoord2f(0.0f, 1.0f); glVertex3f( w, -h,  1.0f);//指定当前点使用（0，1）纹理坐标，顶点的坐标
-		glTexCoord2f(1.0f, 1.0f); glVertex3f(-w, -h,  1.0f);
-		glTexCoord2f(1.0f, 0.0f); glVertex3f(-w,  h,  1.0f);
-		glTexCoord2f(0.0f, 0.0f); glVertex3f( w,  h,  1.0f);
+		glTexCoord2f(0.0f, 1.0f); glVertex3f( -w, -h,  1.0f);//指定当前点使用（0，1）纹理坐标，顶点的坐标
+		glTexCoord2f(1.0f, 1.0f); glVertex3f(w, -h,  1.0f);
+		glTexCoord2f(1.0f, 0.0f); glVertex3f(w,  h,  1.0f);
+		glTexCoord2f(0.0f, 0.0f); glVertex3f( -w,  h,  1.0f);
 		glEnd();
+		glDisable(GL_TEXTURE_2D);
 	}
 
 	void DrawFlash()
@@ -553,20 +555,20 @@ public:
 		glColor3d(c[1][index],c[1][index],c[1][index]);
 		if(DEBUG)outfile<<c[1][index]<<'\t';
 		glBegin(GL_QUADS);
-		glVertex3d(1.5*w1,w2/2,h);
+		glVertex3d(w1,w2/2,h);
+		glVertex3d(w1,-w2/2,h);
 		glVertex3d(1.5*w1,-w2/2,h);
-		glVertex3d(2*w1,-w2/2,h);
-		glVertex3d(2*w1,w2/2,h);
+		glVertex3d(1.5*w1,w2/2,h);
 		glEnd();//右下角的正方形
 
 		index=int(t*RefreshHz/1000)%int(RefreshHz*period[2]/1000);//第三个频率对应的正方形
 		glColor3d(c[2][index],c[2][index],c[2][index]);
 		if(DEBUG)outfile<<c[2][index]<<'\t';
 		glBegin(GL_QUADS);
-		glVertex3d(-1.5*w1,w2/2,h);
+		glVertex3d(-w1,w2/2,h);
+		glVertex3d(-w1,-w2/2,h);
 		glVertex3d(-1.5*w1,-w2/2,h);
-		glVertex3d(-2*w1,-w2/2,h);
-		glVertex3d(-2*w1,w2/2,h);//左下角的正方形
+		glVertex3d(-1.5*w1,w2/2,h);//左下角的正方形
 		glEnd();
 
 		index = int(t * RefreshHz / 1000) % int(RefreshHz * period[3] / 1000);//第四个频率对应的正方形

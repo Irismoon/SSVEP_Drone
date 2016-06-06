@@ -10,7 +10,7 @@
 #define		FRE_SEGMENT			int(Fs*0.9)			//每个trial的时长
 
 /* */
-#define		DIS_MODE			1					//1、显示视频;3、黑屏训练，这种情况只要直接画flash就好了，屏幕自动被填充为黑色
+#define		DIS_MODE			2					//1、显示视频;3、黑屏训练，这种情况只要直接画flash就好了，屏幕自动被填充为黑色
 #define		WIN_WIDE			640			//窗口宽度
 #define		WIN_HEIGHT			480 				//窗口高度
 
@@ -34,11 +34,11 @@
 //起飞设置
 bool TAKEOFF = false;
 #define     TAKEVAR       0.01
-#define     TAKE_THLD     100//连续满足条件十次才起飞
+#define     TAKE_THLD     80//连续满足条件十次才起飞
 
 //降落设置
 bool LAND = false;
-#define     LANDVAR       0.003
+#define     LANDVAR       0.002
 #define     LAND_THLD     100
 
 #define		VALUE_POSITIVE		20
@@ -68,4 +68,4 @@ const double c[4][15]={{1,1,1,0,0,0,0,0,0,0,0,0,0,0},
 
 #define		PI					3.1415926535
 #define		PI_OVER				0.0174532925//角度转换为弧度的系数
-#define		COM_PORT			"COM5"
+#define		COM_PORT			"COM6"

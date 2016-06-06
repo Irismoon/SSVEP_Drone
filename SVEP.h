@@ -179,13 +179,24 @@ public:
 				{
 					TAKEOFF = true;//take off
 					LAND = false;
-					serial.SentSerial(9,0.0000);
+					serial.SentSerial('t',0.0000);
+					serial.SentSerial('t', 0.0000);
+					serial.SentSerial('t', 0.0000);
+					serial.SentSerial('t', 0.0000);
+					serial.SentSerial('t', 0.0000);
+					serial.SentSerial('t', 0.0000);
+					serial.SentSerial('t', 0.0000);
 					take_var = 0;
 					serialnum = 0;
 				}
 				else if (TAKEOFF&&land_var>=LAND_THLD)//if copter has taken off and  variance<0.005 comes up to 6 times
 				{
-                    serial.SentSerial(9,0.0000);//sent land command 
+					//serial.SentSerial(0,0.0000);
+                    serial.SentSerial('l',0.0000);//sent land command 
+					serial.SentSerial('l', 0.0000);//sent land command 
+					serial.SentSerial('l', 0.0000);//sent land command 
+					serial.SentSerial('l', 0.0000);//sent land command 
+					serial.SentSerial('l', 0.0000);//sent land command 
 					LAND = true;
 					TAKEOFF = false;//ready for the next takeoff
 					land_var = 0;
@@ -197,28 +208,28 @@ public:
 					{
 						mark[0] -= VALUE_MINUS;
 						//evafile << '1' << '\t';
-						serial.SentSerial(1,velocity);
+						serial.SentSerial('1',velocity);
 						serialnum = 1;
 					}//向上
 					else if (mark[1] >= VALUE_THRESHOLD)
 					{
 						mark[1] -= VALUE_MINUS;
 						//evafile << '2' << '\t';
-						serial.SentSerial(2,velocity);
+						serial.SentSerial('2',velocity);
 						serialnum = 2;
 					}//向后
 					else if (mark[2] >= VALUE_THRESHOLD)
 					{
 						mark[2] -= VALUE_MINUS;
 						//evafile << '3' << '\t';
-						serial.SentSerial(3,velocity);
+						serial.SentSerial('3',velocity);
 						serialnum = 3;
 					}//向左
 					else if (mark[3] >= VALUE_THRESHOLD)
 					{
 						mark[3] -= VALUE_MINUS;
 						//evafile << '4' << '\t';
-						serial.SentSerial(4,velocity);
+						serial.SentSerial('4',velocity);
 						serialnum = 4;
 					}//向右
 				}
@@ -228,25 +239,25 @@ public:
 				if (mark[0] >= VALUE_THRESHOLD)//阈值策略，同一值连续出现三次及以上才发送指令
 				{
 					mark[0] -= VALUE_MINUS;
-					serial.SentSerial(1,velocity);
+					serial.SentSerial('1',velocity);
 					serialnum = 1;
 				}//向上
 				else if (mark[1] >= VALUE_THRESHOLD)
 				{
 					mark[1] -= VALUE_MINUS;
-					serial.SentSerial(2,velocity);
+					serial.SentSerial('2',velocity);
 					serialnum = 2;
 				}//向右
 				else if (mark[2] >= VALUE_THRESHOLD)
 				{
 					mark[2] -= VALUE_MINUS;
-					serial.SentSerial(3,velocity);
+					serial.SentSerial('3',velocity);
 					serialnum = 3;
 				}//向左
 				else if (mark[3] >= VALUE_THRESHOLD)
 				{
 					mark[3] -= VALUE_MINUS;
-					serial.SentSerial(4,velocity);
+					serial.SentSerial('4',velocity);
 					serialnum = 4;
 				}//向后
 			}

@@ -22,14 +22,14 @@ public:
 		if(is_capture)
 		{
 			if (device > 1)	
-				device = 1;
+				device = 0;
 			else
 				device = 0;
-			capture_temp.mWidth = 720;
+			capture_temp.mWidth = 1200;
 			capture_temp.mHeight = 576;
 			capture_temp.mTargetBuf = new int[capture_temp.mWidth*capture_temp.mHeight];
 
-			capture.mWidth = 720;
+			capture.mWidth = 1200;
 			capture.mHeight = 576;
 			capture.mTargetBuf = new int[capture.mWidth*capture.mHeight];
 			initCapture(device,&capture_temp);

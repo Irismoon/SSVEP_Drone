@@ -4,8 +4,6 @@ Fs=128;
 filt_n=4;
 [filter_b,filter_a]=butter(filt_n,2/(Fs/2),'high');%4阶巴特沃斯高通滤波器
 
-takeoffthld = 0.01;
-landthld = 0.005;
 DATA_LENGTH=160*Fs;
 serial_tri = -ones(1,1264);
 serial = -ones(1,1264);
