@@ -20,7 +20,7 @@
 
 
 //#define     IS_TRAIN			false				//true训练，false演示
-#define     Evaluation          false                 //evaluation
+#define     Evaluation          true                 //evaluation
 #define		TRAIN_MOVE			false               //指训练的时候是否要对应实际的小车移动
 
 #define		STATE_STOP			0
@@ -68,4 +68,4 @@ const double c[4][15]={{1,1,1,0,0,0,0,0,0,0,0,0,0,0},
 
 #define		PI					3.1415926535
 #define		PI_OVER				0.0174532925//角度转换为弧度的系数
-#define		COM_PORT			"COM6"
+#define		COM_PORT			"COM7"

@@ -9,10 +9,12 @@ if(signal>=0&&signal<4&&IS_TRAIN==0)
     end
     for i=1:4
         if(mark(i)>=threshold)
-            serialindex = serialindex+1;
+            serialindex = index;%serialindex+1;
             mark(i) = mark(i) - minus;
             serial(serialindex) = i-1;
             serial_tri(serialindex) = trigger(index);
+%            seriall = [seriall i-1];
+ %           serial_trii = [serial_trii trigger(index)];
         end
     end
 end

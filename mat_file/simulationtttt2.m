@@ -1,4 +1,4 @@
-tic;head_for_offline_performance;
+tic;head_for_online_performance;
 mark = zeros(1,4);
 threshold = 30;
 negative = 10;
@@ -14,11 +14,11 @@ IS_TRAIN=0;
 % end
 
 %data_src=load('..\\data-2010.07.11_23.20\\data_cnt-2010.07.11_23.20.txt');
-data_src=load('data_cnt-2016.05.23_15.17.txt');
+data_src=load('data_cnt-2016.05.10_12.16.txt');
 %data_src = data_src.data;
-for i=1:20479%DATA_LENGTH
+for i=1:DATA_LENGTH
     x=data_src(i,:);
-    data_add_for_offline_performance;
+    data_add_for_online_performance;
     test;
 end
 toc;
