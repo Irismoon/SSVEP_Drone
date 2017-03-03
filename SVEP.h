@@ -86,7 +86,7 @@ public:
 				if (Evaluation) {
 					if (data_index%TRIAL == 0)//标签是以TRIAL为单位变化的
 					{
-						trigger[data_index%DATA_LENGTH] = rand() % DATA_TYPE+1;
+						trigger[data_index%DATA_LENGTH] = rand() % DATA_TYPE + 1;
 						switch (trigger[data_index%DATA_LENGTH]) {
 						case 1:
 						PlaySound("up.wav", NULL, SND_ASYNC);
@@ -99,6 +99,9 @@ public:
 						break;
 						case 2:
 						PlaySound("down.wav", NULL, SND_ASYNC);
+						break;
+						case 5:
+						PlaySound("forward.wav", NULL, SND_ASYNC);
 						break;
 						}
 					}
@@ -179,24 +182,14 @@ public:
 				{
 					TAKEOFF = true;//take off
 					LAND = false;
-					serial.SentSerial('t',0.0000);
-					serial.SentSerial('t', 0.0000);
-					serial.SentSerial('t', 0.0000);
-					serial.SentSerial('t', 0.0000);
-					serial.SentSerial('t', 0.0000);
-					serial.SentSerial('t', 0.0000);
-					serial.SentSerial('t', 0.0000);
+					serial.SentSerial(9,0.0000);
 					take_var = 0;
 					serialnum = 0;
 				}
 				else if (TAKEOFF&&land_var>=LAND_THLD)//if copter has taken off and  variance<0.005 comes up to 6 times
 				{
 					//serial.SentSerial(0,0.0000);
-                    serial.SentSerial('l',0.0000);//sent land command 
-					serial.SentSerial('l', 0.0000);//sent land command 
-					serial.SentSerial('l', 0.0000);//sent land command 
-					serial.SentSerial('l', 0.0000);//sent land command 
-					serial.SentSerial('l', 0.0000);//sent land command 
+					serial.SentSerial(10,0.0000);//sent land command 
 					LAND = true;
 					TAKEOFF = false;//ready for the next takeoff
 					land_var = 0;
@@ -207,31 +200,33 @@ public:
 					if (mark[0] >= VALUE_THRESHOLD)//
 					{
 						mark[0] -= VALUE_MINUS;
-						//evafile << '1' << '\t';
-						serial.SentSerial('1',velocity);
+						serial.SentSerial(1,velocity);
 						serialnum = 1;
-					}//向上
+					}//forward
 					else if (mark[1] >= VALUE_THRESHOLD)
 					{
 						mark[1] -= VALUE_MINUS;
-						//evafile << '2' << '\t';
-						serial.SentSerial('2',velocity);
+						serial.SentSerial(2,velocity);
 						serialnum = 2;
-					}//向后
+					}//right
 					else if (mark[2] >= VALUE_THRESHOLD)
 					{
 						mark[2] -= VALUE_MINUS;
-						//evafile << '3' << '\t';
-						serial.SentSerial('3',velocity);
+						serial.SentSerial(3,velocity);
 						serialnum = 3;
-					}//向左
+					}//left
 					else if (mark[3] >= VALUE_THRESHOLD)
 					{
 						mark[3] -= VALUE_MINUS;
-						//evafile << '4' << '\t';
-						serial.SentSerial('4',velocity);
+						serial.SentSerial(4,velocity);
 						serialnum = 4;
-					}//向右
+					}//up
+					else if (mark[4] >= VALUE_THRESHOLD)
+					{
+						mark[4] -= VALUE_MINUS;
+						serial.SentSerial(5, velocity);
+						serialnum = 5;
+					}//down
 				}
 				
 			}
@@ -239,27 +234,33 @@ public:
 				if (mark[0] >= VALUE_THRESHOLD)//阈值策略，同一值连续出现三次及以上才发送指令
 				{
 					mark[0] -= VALUE_MINUS;
-					serial.SentSerial('1',velocity);
+					serial.SentSerial(1,velocity);
 					serialnum = 1;
-				}//向上
+				}//forward
 				else if (mark[1] >= VALUE_THRESHOLD)
 				{
 					mark[1] -= VALUE_MINUS;
-					serial.SentSerial('2',velocity);
+					serial.SentSerial(2,velocity);
 					serialnum = 2;
-				}//向右
+				}//right
 				else if (mark[2] >= VALUE_THRESHOLD)
 				{
 					mark[2] -= VALUE_MINUS;
-					serial.SentSerial('3',velocity);
+					serial.SentSerial(3,velocity);
 					serialnum = 3;
-				}//向左
+				}//left
 				else if (mark[3] >= VALUE_THRESHOLD)
 				{
 					mark[3] -= VALUE_MINUS;
-					serial.SentSerial('4',velocity);
+					serial.SentSerial(4,velocity);
 					serialnum = 4;
-				}//向后
+				}//up
+				else if (mark[4] >= VALUE_THRESHOLD)
+				{
+					mark[4] -= VALUE_MINUS;
+					serial.SentSerial(5, velocity);
+					serialnum = 5;
+				}//down
 			}
 		}
 	}
@@ -279,7 +280,7 @@ public:
 		char buff[500];
 		sprintf(buff,"cd('%s\\mat_file');",mat_path);
 		engEvalString(ep,buff);//引擎执行字符串buff中的表达式，进入文件夹
-		engEvalString(ep,"head");//执行head文件，都是初始定义性质处理
+		engEvalString(ep,"headmo");//执行head文件，都是初始定义性质处理
 		//if(!IS_TRAIN)
 			//engEvalString(ep,"playing");//执行playing，载入训练好的系数
 
@@ -308,11 +309,11 @@ public:
 				signal = s[0]; velocity = s[1]; variance = s[2];
 				//一个trial产生一个signal，signal是0，1，2，3
 				if (Evaluation) {
-					if (signal > 0 && signal < 5)
+					if (signal > 0 && signal < DATA_TYPE + 1)
 					{
 						//trigger[0]=int(signal);//调试用
 						mark[int(signal) - 1] += VALUE_POSITIVE;
-						for (int i = 0; i < 4; i++) {
+						for (int i = 0; i < DATA_TYPE; i++) {
 							if (mark[i] >= VALUE_NEGITIVE)
 							{
 								mark[i] -= VALUE_NEGITIVE;
@@ -331,11 +332,11 @@ public:
 							}
 						}
 						else if (TAKEOFF&&!LAND) {
-							if (signal > 0 && signal < 5)
+							if (signal > 0 && signal < DATA_TYPE+1)
 							{
 								//trigger[0]=int(signal);//调试用
 								mark[int(signal) - 1] += VALUE_POSITIVE;
-								for (int i = 0; i < 4; i++) {
+								for (int i = 0; i < DATA_TYPE; i++) {
 									if (mark[i] >= VALUE_NEGITIVE)
 									{
 										mark[i] -= VALUE_NEGITIVE;

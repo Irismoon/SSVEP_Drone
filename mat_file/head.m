@@ -16,10 +16,10 @@ index=0;
 data_unfilter=zeros(DATA_LENGTH,ch_size);
 data=zeros(DATA_LENGTH,ch_size);
 
-freq = [12.525,7.5125,8.2973,9.3439];%LBH
+freq = [11.25,6.4,7.5,9];
+%freq = [12.525,7.5125,8.2973,9.3439];%LBH
 %freq = [12.525,9.4934,8.2973,15.0249];%LSZ
 %freq = [12.5 9.37 8.33 6.8182];
-%freq=[12 10 8.5714 6.667];
 frecount = length(freq);
 peroid=1000./freq;
 %freq=[12 8.5714 6.6667]
@@ -29,7 +29,6 @@ slide=Fs/8;%滑动窗长
 TRIAL=Fs*5;%训练时的每个同类标签的长度
 trigger=zeros(DATA_LENGTH/slide,1);
 Signal = trigger;
-
 
 reference = cell(frecount,1);
 for i=1:frecount

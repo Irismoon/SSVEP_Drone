@@ -2,10 +2,10 @@
 //Windows设置
 #define     RefreshHz           75                  //屏幕刷新率，Hz
 #define		DATA_CHANNEL		8					//通道
-#define		DATA_TYPE			4                  //判断出的方向
+#define		DATA_TYPE			5                  //判断出的方向
 #define		Fs					128
 #define		DATA_LENGTH			int(Fs*3)			//缓冲池大小，SVEP每次存数据存3s的数据来分析
-#define		SEGMENT				(Fs*160)		    //每次时长
+#define		SEGMENT				(Fs*200)		    //每次时长
 #define		TRIAL				(Fs*5)				//每个trial的时长，一个TRIAL指的是某一闪烁方块闪烁的时长
 #define		FRE_SEGMENT			int(Fs*0.9)			//每个trial的时长
 
@@ -34,11 +34,11 @@
 //起飞设置
 bool TAKEOFF = false;
 #define     TAKEVAR       0.01
-#define     TAKE_THLD     80//连续满足条件十次才起飞
+#define     TAKE_THLD     100//连续满足条件十次才起飞
 
 //降落设置
 bool LAND = false;
-#define     LANDVAR       0.002
+#define     LANDVAR       0.003
 #define     LAND_THLD     100
 
 #define		VALUE_POSITIVE		20
@@ -50,20 +50,22 @@ bool LAND = false;
 
 
 //const int ch[8]={9,45,53,57,58,59,60,61};
-const double freq[4]=			{12.5,9.37,8.33,6.8182};//刺激频率，显示器刷新频率是75HZ，75/6，/8,/9，/11
+const double freq[5]=			{10.7,9.37,8.33,12.5,7.5};//刺激频率，显示器刷新频率是75HZ，75/6，/8,/9，/11
 //const double freq[3]=			{37.5,25,18.75};
 
 //const double period[3]=			{80,120,200};
-const double period[4]=			{80,106.7236,120.048,146.666};//period=1/freq，闪烁一次耗时ms
+const double period[5]=			{93.458,106.7236,120.048,80,133.333};//period=1/freq，闪烁一次耗时ms
 //const double period[3]=			{26.6667,40,53.3333};
 //const double c[3][15]={{1,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
 //					   {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
 //					   {1,1,0,0,0,0,0,0,0,0,0,0,0,0,0}};
 	
-const double c[4][15]={{1,1,1,0,0,0,0,0,0,0,0,0,0,0},
-					   {1,1,1,1,0,0,0,0,0,0,0,0,0,0},
-					   {1,1,1,1,1,0,0,0,0,0,0,0,0,0},
-					   {1,1,1,1,1,1,0,0,0,0,0,0,0,0}};
+const double c[5][15] = { 
+						{1,1,1,1,0,0,0,0,0,0,0,0,0},//4:3,75/10.7=7
+					   {1,1,1,1,0,0,0,0,0,0,0,0,0,0},//4:4,75/9.37=8
+					   {1,1,1,1,1,0,0,0,0,0,0,0,0,0},//5:4,75/8.33=9
+					   {1,1,1,0,0,0,0,0,0,0,0,0,0,0},//3:3,75/12.5=6
+					   {1,1,1,1,1,0,0,0,0,0,0,0,0}};//5:5.75/7.5=10
 
 
 #define		PI					3.1415926535

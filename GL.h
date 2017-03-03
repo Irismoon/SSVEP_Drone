@@ -21,6 +21,7 @@ public:
 
 	float			xpos;
 	float			zpos;
+	float           ypos;
 	GLfloat			yrot;				// Y Rotation
 
 	CClient client;	
@@ -54,6 +55,7 @@ public:
 		//在需要严格计时的事件发生前和发生之后分别调用QueryPerformanceCounter()，利用两次获得的计数之差和时钟频率，就可以计算出事件经历的精确时间。
 		xpos=0;
 		zpos=0;
+		ypos = 0;
 	}
 
 	~CGL()
@@ -444,20 +446,22 @@ public:
 			break;
 		case 0:
 			break;//画面不动
-		case 2:
-			xpos += (float)sin(yrot*PI_OVER) * 0.01f;//svep.velocity
-			zpos += (float)cos(yrot*PI_OVER) * 0.01f;
-			break;//后
 		case 1:
 			xpos -= (float)sin(yrot*PI_OVER) * 0.01f;
 			zpos -= (float)cos(yrot*PI_OVER) * 0.01f;
 			break;//前
-		case 4:			
+		case 2:			
 			yrot -= 0.1f;
 			break;//右
 		case 3:			
 			yrot += 0.1f;
 			break;//左
+		case 4:
+			ypos += 0.01f;
+			break;//上
+		case 5:
+			ypos -= 0.01f;//下
+
 		}
 
 		if(keys[VK_SPACE])
@@ -540,8 +544,8 @@ public:
 
 		int  index;
 		bool flash_temp=true;
-		index=int(t*RefreshHz/1000)%int(RefreshHz*period[0]/1000);//画第一个频率对应的正方形
-		//t是当前已经过去了多长时间，除以各个频率对应的周期，就是各个频率对应的索引
+		index=int(t*RefreshHz/1000)%int(RefreshHz*period[0]/1000+0.5);//画第一个频率对应的正方形
+		//index代表：已经过去的时间里包含多少个刷新脉冲%此闪烁刺激一个周期内的脉冲个数（如12.5Hz对应6）=0，1，2，3，4，5，前三个脉冲合为高电平，后三个合为低电平
 		glColor3d(c[0][index],c[0][index],c[0][index]);	//red,green ,blue
 		if(DEBUG)outfile<<c[0][index]<<'\t';
 		glBegin(GL_QUADS); 
@@ -551,7 +555,7 @@ public:
 		glVertex3d(-w1/2,w2,h);
 		glEnd();//逆时针画的，最上面的长方形
 
-		index=int(t*RefreshHz/1000)%int(RefreshHz*period[1]/1000);//第二个频率对应的正方形
+		index=int(t*RefreshHz/1000)%int(RefreshHz*period[1]/1000+0.5);//第二个频率对应的正方形
 		glColor3d(c[1][index],c[1][index],c[1][index]);
 		if(DEBUG)outfile<<c[1][index]<<'\t';
 		glBegin(GL_QUADS);
@@ -561,7 +565,7 @@ public:
 		glVertex3d(2*w1,w2/2,h);
 		glEnd();//右下角的正方形
 
-		index=int(t*RefreshHz/1000)%int(RefreshHz*period[2]/1000);//第三个频率对应的正方形
+		index=int(t*RefreshHz/1000)%int(RefreshHz*period[2]/1000+0.5);//第三个频率对应的正方形
 		glColor3d(c[2][index],c[2][index],c[2][index]);
 		if(DEBUG)outfile<<c[2][index]<<'\t';
 		glBegin(GL_QUADS);
@@ -571,78 +575,26 @@ public:
 		glVertex3d(-2*w1,w2/2,h);//左下角的正方形
 		glEnd();
 
-		index = int(t * RefreshHz / 1000) % int(RefreshHz * period[3] / 1000);//第四个频率对应的正方形
+		index = int(t * RefreshHz / 1000) % int(RefreshHz * period[3] / 1000+0.5);//第四个频率对应的正方形
 		glColor3d(c[3][index], c[3][index], c[3][index]);
 		if (DEBUG)outfile << c[3][index] << '\n';
 		glBegin(GL_QUADS);
-		glVertex3d(w1/2,-w1, h);
-		glVertex3d(w1/2, -w2, h);
-		glVertex3d(-w1/2, -w2, h);
-		glVertex3d(-w1/2,-w1, h);//最下面的闪烁方块
+		glVertex3d(-w2,-w1, h);
+		glVertex3d(-w2, -w2, h);
+		glVertex3d(-w1, -w2, h);
+		glVertex3d(-w1,-w1, h);//最下面的闪烁方块
+		glEnd();
+
+		index = int(t * RefreshHz / 1000) % int(RefreshHz * period[4] / 1000+0.5);//第四个频率对应的正方形
+		glColor3d(c[3][index], c[3][index], c[3][index]);
+		if (DEBUG)outfile << c[3][index] << '\n';
+		glBegin(GL_QUADS);
+		glVertex3d(w1, -w1, h);
+		glVertex3d(w1, -w2, h);
+		glVertex3d(w2, -w2, h);
+		glVertex3d(w2, -w1, h);//最下面的闪烁方块
 		glEnd();
 		
-	}
-
-	void DrawTrainFlash()
-	{
-		float w1 = 0.04, w2 = 0.02, h = -0.1;
-		glLoadIdentity();// 重置当前指定的矩阵为单位矩阵.当您调用glLoadIdentity()之后，您实际上将当前点移到了屏幕中心，
-		//OpenGL屏幕中心的坐标值是X和Y轴上的0.0f点。/中心左面的坐标值是负值，右面是正值。移向屏幕顶端是正值，移向屏幕底端是负值。移入屏幕深处是负值，移出屏幕则是正值。
-		glColor3d(1, 1, 1);//一次性设置当前色为白色
-
-		get_clock();
-		if (DEBUG)outfile << t << '\t';
-
-		int  index;
-		bool flash_temp = true;
-		switch (svep.trigger[svep.data_index%DATA_LENGTH])
-		{
-		case 1://向前
-			index = int(t * RefreshHz / 1000) % int(RefreshHz * period[0] / 1000);//画第一个频率对应的正方形
-			//t是当前已经过去了多长时间，除以各个频率对应的周期，就是各个频率对应的索引
-			glColor3d(c[0][index], c[0][index], c[0][index]);	//red,green ,blue
-			if (DEBUG)outfile << c[0][index] << '\t';
-			glBegin(GL_QUADS);
-			glVertex3d(w1 / 2, w2, h);
-			glVertex3d(w1 / 2, w1, h);
-			glVertex3d(-w1 / 2, w1, h);
-			glVertex3d(-w1 / 2, w2, h);
-			glEnd();//逆时针画的，最上面的长方形
-			break;
-		case 4://向右
-			index = int(t * RefreshHz / 1000) % int(RefreshHz * period[1] / 1000);//第二个频率对应的正方形
-			glColor3d(c[1][index], c[1][index], c[1][index]);
-			if (DEBUG)outfile << c[1][index] << '\t';
-			glBegin(GL_QUADS);
-			glVertex3d(2 * w1, w2 / 2, h);
-			glVertex3d(2 * w1, -w2 / 2, h);
-			glVertex3d(1.5 * w2, -w2 / 2, h);
-			glVertex3d(1.5 * w2, w2 / 2, h);
-			glEnd();//右下角的正方形
-			break;
-		case 3://向左
-			index = int(t * RefreshHz / 1000) % int(RefreshHz * period[2] / 1000);//第三个频率对应的正方形
-			glColor3d(c[2][index], c[2][index], c[2][index]);
-			if (DEBUG)outfile << c[2][index] << '\t';
-			glBegin(GL_QUADS);
-			glVertex3d(-1.5 * w2, w2 / 2, h);
-			glVertex3d(-1.5 * w2, -w2 / 2, h);
-			glVertex3d(-2 * w1, -w2 / 2, h);
-			glVertex3d(-2 * w1, w2 / 2, h);//左下角的正方形
-			glEnd();
-			break;
-		case 2://向后
-			index = int(t * RefreshHz / 1000) % int(RefreshHz * period[3] / 1000);//第四个频率对应的正方形
-			glColor3d(c[3][index], c[3][index], c[3][index]);
-			if (DEBUG)outfile << c[3][index] << '\n';
-			glBegin(GL_QUADS);
-			glVertex3d(w1 / 2, -w2, h);
-			glVertex3d(w1 / 2, -w1, h);
-			glVertex3d(-w1 / 2, -w1, h);
-			glVertex3d(-w1 / 2, -w2, h);//最下面的闪烁方块
-			glEnd();
-			break;
-		}
 	}
 
 	void DrawVirtural()
@@ -656,7 +608,7 @@ public:
 		GLfloat z = -Length / 2;
 		GLfloat xtrans = -xpos;
 		GLfloat ztrans = -zpos;
-		GLfloat ytrans = -0.25f;
+		GLfloat ytrans = -ypos;
 
 
 		glRotatef(360.0f - yrot,0,1.0f,0);
