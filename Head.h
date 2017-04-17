@@ -1,5 +1,5 @@
 #pragma once
-#pragma comment(lib, "legacy_stdio_definitions.lib")
+//#pragma comment(lib, "legacy_stdio_definitions.lib")
 
 #include <queue>
 #include <math.h>
@@ -25,9 +25,12 @@
 #pragma comment(lib,"GLaux.lib")
 #pragma comment(lib,"winmm.lib")
 
-#if (_MSC_VER>=1600)
+/*#if (_MSC_VER>=1600)
 #define __STDC_UTF_16__
 #endif
+#if(_MSC_VER<1600)
+typedef wchar_t char16_t
+#endif*/
 #include "engine.h"
 #pragma comment(lib,"libeng.lib")
 #pragma comment(lib,"libmat.lib")

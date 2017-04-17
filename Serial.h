@@ -44,14 +44,14 @@ public:
 	{
 		if(is_serial)
 		{
-			SentSerial(0,0.0000);
+			SentSerial(0,0);
 			::CloseHandle(hCom);//关闭串口
 		}
 	}
 
-	void SentSerial(char num,double velocity)
+	void SentSerial(char num,bool velocity)
 	{
-		sprintf(send_buf, "%d\n", num);//velocity的小数点后两位存入，不用把四位全存入，这样可以使ARDRONE飞得更光滑稳定
-		WriteFile(hCom, send_buf, 6, &dw, NULL);
+		sprintf(send_buf, "%d%d\n", num,velocity);//整数打印到字符串中
+		WriteFile(hCom, send_buf, 3, &dw, NULL);
 	}
 };

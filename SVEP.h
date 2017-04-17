@@ -3,7 +3,6 @@
 
 static DWORD WINAPI FileThreadEntry(PVOID arg);
 static DWORD WINAPI MatlabThreadEntry(PVOID arg);
-static DWORD WINAPI SerialportThreadEntry(PVOID arg);
 
 class CSVEP
 {
@@ -19,10 +18,8 @@ public:
 	//C++->matlab:传时间标签和标记
 	//matlab->C++:传实时返回结果
 	double	signal;		
-	double  velocity;
-	double  variance;
-	int		take_var;
-	int     land_var;
+	bool  velocity;
+
 	HANDLE	m_hThread_file;							//用于线程控制			
 	HANDLE	m_hThread_mat;							//用于线程控制
 	HANDLE  m_hThread_port;
@@ -37,20 +34,14 @@ public:
 	CSVEP()
 	{		
 		data_index=-1;
-		take_var=0;
-		land_var = 0;
 		signal=-1;
 		velocity = 0;
-		variance = 0;
 		state=STATE_STOP;
 		serialnum = 0;
-		//if (Evaluation) evafile.open("evaluation.txt");
-		//QueryPerformanceFrequency(&fequency);
 		for(int i=0;i<DATA_TYPE;i++)
 			mark[i]=0;
 		m_hThread_file=CreateThread(NULL,0,FileThreadEntry,(PVOID)this,0,NULL);	
 		m_hThread_mat=CreateThread(NULL,0,MatlabThreadEntry,(PVOID)this,0,NULL);
-		m_hThread_port = CreateThread(NULL, 0, SerialportThreadEntry, (PVOID)this, 0, NULL);
 	}
 
 	~CSVEP()
@@ -68,11 +59,7 @@ public:
 			CloseHandle(m_hThread_mat);
 			m_hThread_mat=NULL;
 		}
-		if (m_hThread_port != NULL)
-		{
-			CloseHandle(m_hThread_port);
-			m_hThread_mat = NULL;
-		}
+
 	}
 
 	void SetData(double *p,int nBlockPnts)
@@ -86,23 +73,23 @@ public:
 				if (Evaluation) {
 					if (data_index%TRIAL == 0)//标签是以TRIAL为单位变化的
 					{
-						trigger[data_index%DATA_LENGTH] = rand() % DATA_TYPE + 1;
+						trigger[data_index%DATA_LENGTH] = rand() % (DATA_TYPE)+1;
 						switch (trigger[data_index%DATA_LENGTH]) {
-						case 1:
-						PlaySound("up.wav", NULL, SND_ASYNC);
-						break;
 						case 4:
 						PlaySound("right.wav", NULL, SND_ASYNC);
-						break;
-						case 3:
-						PlaySound("left.wav", NULL, SND_ASYNC);
 						break;
 						case 2:
 						PlaySound("down.wav", NULL, SND_ASYNC);
 						break;
-						case 5:
+						case 3:
 						PlaySound("forward.wav", NULL, SND_ASYNC);
 						break;
+						case 1:
+						PlaySound("up.wav",NULL,SND_ASYNC);
+						break;
+						case 5:
+							PlaySound("idle.wav", NULL, SND_ASYNC);
+							break;
 						}
 					}
 					if ((data_index + 1) % (SEGMENT) == 0)
@@ -173,102 +160,11 @@ public:
 		file.close();
 	}
 
-	void Serial()
-	{
-		CSerial serial;
-		while (state != STATE_END) {
-			if (!Evaluation) {
-				if (!TAKEOFF&&(take_var>=TAKE_THLD))//if copter has not taken off from land and variance>0.01 comes up to 10 times
-				{
-					TAKEOFF = true;//take off
-					LAND = false;
-					serial.SentSerial(9,0.0000);
-					take_var = 0;
-					serialnum = 0;
-				}
-				else if (TAKEOFF&&land_var>=LAND_THLD)//if copter has taken off and  variance<0.005 comes up to 6 times
-				{
-					//serial.SentSerial(0,0.0000);
-					serial.SentSerial(10,0.0000);//sent land command 
-					LAND = true;
-					TAKEOFF = false;//ready for the next takeoff
-					land_var = 0;
-					serialnum = 0;
-				}
-				else if(TAKEOFF&&!LAND)//if the copter has taken off and not landed
-				{
-					if (mark[0] >= VALUE_THRESHOLD)//
-					{
-						mark[0] -= VALUE_MINUS;
-						serial.SentSerial(1,velocity);
-						serialnum = 1;
-					}//forward
-					else if (mark[1] >= VALUE_THRESHOLD)
-					{
-						mark[1] -= VALUE_MINUS;
-						serial.SentSerial(2,velocity);
-						serialnum = 2;
-					}//right
-					else if (mark[2] >= VALUE_THRESHOLD)
-					{
-						mark[2] -= VALUE_MINUS;
-						serial.SentSerial(3,velocity);
-						serialnum = 3;
-					}//left
-					else if (mark[3] >= VALUE_THRESHOLD)
-					{
-						mark[3] -= VALUE_MINUS;
-						serial.SentSerial(4,velocity);
-						serialnum = 4;
-					}//up
-					else if (mark[4] >= VALUE_THRESHOLD)
-					{
-						mark[4] -= VALUE_MINUS;
-						serial.SentSerial(5, velocity);
-						serialnum = 5;
-					}//down
-				}
-				
-			}
-			else {
-				if (mark[0] >= VALUE_THRESHOLD)//阈值策略，同一值连续出现三次及以上才发送指令
-				{
-					mark[0] -= VALUE_MINUS;
-					serial.SentSerial(1,velocity);
-					serialnum = 1;
-				}//forward
-				else if (mark[1] >= VALUE_THRESHOLD)
-				{
-					mark[1] -= VALUE_MINUS;
-					serial.SentSerial(2,velocity);
-					serialnum = 2;
-				}//right
-				else if (mark[2] >= VALUE_THRESHOLD)
-				{
-					mark[2] -= VALUE_MINUS;
-					serial.SentSerial(3,velocity);
-					serialnum = 3;
-				}//left
-				else if (mark[3] >= VALUE_THRESHOLD)
-				{
-					mark[3] -= VALUE_MINUS;
-					serial.SentSerial(4,velocity);
-					serialnum = 4;
-				}//up
-				else if (mark[4] >= VALUE_THRESHOLD)
-				{
-					mark[4] -= VALUE_MINUS;
-					serial.SentSerial(5, velocity);
-					serialnum = 5;
-				}//down
-			}
-		}
-	}
  
 	//处理数据，判断目前实验处于哪一步骤，并给出相应处理
 	void MatlabEng()
 	{	
-		//CSerial serial;
+		CSerial serial;
 		int mat_index=-1;//放在函数里，函数的私有变量，防止其他程序修改此值
 		critical=2;		
 		Engine *ep; 
@@ -280,13 +176,12 @@ public:
 		char buff[500];
 		sprintf(buff,"cd('%s\\mat_file');",mat_path);
 		engEvalString(ep,buff);//引擎执行字符串buff中的表达式，进入文件夹
-		engEvalString(ep,"headmo");//执行head文件，都是初始定义性质处理
-		//if(!IS_TRAIN)
-			//engEvalString(ep,"playing");//执行playing，载入训练好的系数
+		engEvalString(ep,"headvr");//执行head文件，都是初始定义性质处理
+		
 
 		double *s; 
 		mxArray *xx = mxCreateDoubleMatrix(1,DATA_CHANNEL+1, mxREAL); //创建大小为1x(DATA_CHANNEL+1)的双精度矩阵，都为实数
-		mxArray *ss= mxCreateDoubleMatrix(1,3, mxREAL);		
+		mxArray *ss= mxCreateDoubleMatrix(1,1, mxREAL);		
 		critical=0;
 
 		while(state!=STATE_END)
@@ -304,51 +199,38 @@ public:
 					s[DATA_CHANNEL]=-1;
 				engPutVariable(ep, "x",xx);//把xx指向的数据以x的变量名写入Matlab引擎空间
 				engEvalString(ep,"data_add");
-				ss=engGetVariable(ep, "output");//从引擎中获取变量
+				ss=engGetVariable(ep, "signal");//从引擎中获取变量
 				s = mxGetPr(ss);
-				signal = s[0]; velocity = s[1]; variance = s[2];
-				//一个trial产生一个signal，signal是0，1，2，3
-				if (Evaluation) {
-					if (signal > 0 && signal < DATA_TYPE + 1)
+				signal = s[0];
+				//一个trial产生一个signal，signal是1，2，3,4,5
+				
+					if (signal > 0 && signal < 6)
 					{
 						//trigger[0]=int(signal);//调试用
 						mark[int(signal) - 1] += VALUE_POSITIVE;
-						for (int i = 0; i < DATA_TYPE; i++) {
+						for (int i = 0; i < 5; i++) {
 							if (mark[i] >= VALUE_NEGITIVE)
 							{
 								mark[i] -= VALUE_NEGITIVE;
 							}
+							if (mark[i] >= VALUE_THRESHOLD)
+							{
+								mark[i] = mark[i] - VALUE_MINUS;
+								if (i == 4)
+								{
+									velocity = 1;//fast
+								}
+								else
+								{
+									serialnum = i + 1;//change direction
+									velocity = 0;//slow
+									
+								}
+								serial.SentSerial(serialnum, velocity);
+							}
 						}
 					}
-				}
-				else {
-						if (!TAKEOFF) {
-							if (variance >= TAKEVAR) {
-								take_var += VALUE_POSITIVE;
-							}
-							if (signal > 0 && take_var > 0)
-							{
-								take_var -= VALUE_NEGITIVE;
-							}
-						}
-						else if (TAKEOFF&&!LAND) {
-							if (signal > 0 && signal < DATA_TYPE+1)
-							{
-								//trigger[0]=int(signal);//调试用
-								mark[int(signal) - 1] += VALUE_POSITIVE;
-								for (int i = 0; i < DATA_TYPE; i++) {
-									if (mark[i] >= VALUE_NEGITIVE)
-									{
-										mark[i] -= VALUE_NEGITIVE;
-									}
-								}
-								if (variance < LANDVAR)
-									land_var += VALUE_POSITIVE;
-								else if (land_var>0)
-									land_var -= VALUE_NEGITIVE;
-
-							}
-						}
+				
 				}
 				critical=0;
 				
@@ -375,10 +257,5 @@ static DWORD WINAPI FileThreadEntry(PVOID arg)
 static DWORD WINAPI MatlabThreadEntry(PVOID arg)
 {		
 	((CSVEP *)arg)->MatlabEng();
-	return 0;
-}
- static DWORD WINAPI SerialportThreadEntry(PVOID arg)
-{
-	((CSVEP *)arg)->Serial();
 	return 0;
 }

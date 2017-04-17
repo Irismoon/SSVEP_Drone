@@ -11,7 +11,7 @@ data_index=0;
 data_unfilter=zeros(DATA_LENGTH,ch_size);
 data=zeros(DATA_LENGTH,ch_size);
 
-freq = [10,9,7.5,11.25,6.4];
+freq = [11.25,6.4,7.5,9];
 frecount = length(freq);
 peroid=1000./freq;
 segment=Fs;%´°³¤

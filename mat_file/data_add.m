@@ -38,9 +38,12 @@ if mod(data_index,slide)==0%每slide个数据处理一次
 %                 Wx = fliplr(Wx);
                 rou(i) = r(1);
             end
+			rou(1) = rou(1)+ 0.1;rou(2) = rou(2)+0.02;%LRJ
+			%rou(3) = rou(3)+ 0.1;%WM
             [velocity,signal] = max(rou);
-            variance = var(rou);
-            output = [signal velocity variance];
+			if velocity<=0.50
+                signal = 5;
+            end
          end
 else
     signal=-1;
