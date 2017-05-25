@@ -13,6 +13,7 @@ public:
 	//matlab和C++运行时互不操作,0-都没操作，1-C++在操作，2-matlab在操作
 	int		critical;
 	int     serialnum;
+	int		laststate;
 
 	//用于C++和matlab之间传变量,
 	//C++->matlab:传时间标签和标记
@@ -26,7 +27,7 @@ public:
 
 	char	file_mat[100];
 	int		state;                                 //SVEP程序状态，play/stop/end/rest，通过空格键来回切换
-	int		mark[DATA_TYPE];						//用于标记控制状态下判断的方向
+	int		mark[DATA_TYPE+1];						//用于标记控制状态下判断的方向
 	int		trigger[DATA_LENGTH];
 	//ofstream	evafile;
 	//LARGE_INTEGER tstart, tend, fequency;//64位有符号整数 
@@ -38,6 +39,7 @@ public:
 		velocity = 0;
 		state=STATE_STOP;
 		serialnum = 0;
+		laststate = 0;
 		for(int i=0;i<DATA_TYPE;i++)
 			mark[i]=0;
 		m_hThread_file=CreateThread(NULL,0,FileThreadEntry,(PVOID)this,0,NULL);	
@@ -204,11 +206,11 @@ public:
 				signal = s[0];
 				//一个trial产生一个signal，signal是1，2，3,4,5
 				
-					if (signal > 0 && signal < 6)
+					if (signal >= 0 && signal < 6)
 					{
 						//trigger[0]=int(signal);//调试用
-						mark[int(signal) - 1] += VALUE_POSITIVE;
-						for (int i = 0; i < 5; i++) {
+						mark[int(signal)] += VALUE_POSITIVE;
+						for (int i = 0; i < 6; i++) {
 							if (mark[i] >= VALUE_NEGITIVE)
 							{
 								mark[i] -= VALUE_NEGITIVE;
@@ -216,15 +218,21 @@ public:
 							if (mark[i] >= VALUE_THRESHOLD)
 							{
 								mark[i] = mark[i] - VALUE_MINUS;
-								if (i == 4)
+								if (i == 5)
 								{
-									velocity = 1;//fast
+									serialnum = laststate;
+									velocity = 0;//fast
 								}
 								else
 								{
-									serialnum = i + 1;//change direction
-									velocity = 0;//slow
-									
+									if (i==0)
+										serialnum = i;
+									else
+									{
+										laststate = i;
+										serialnum = i;//change direction
+										velocity = 1;//slow
+									}
 								}
 								serial.SentSerial(serialnum, velocity);
 							}
